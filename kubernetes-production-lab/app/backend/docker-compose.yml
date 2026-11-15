@@ -1,0 +1,37 @@
+
+services:
+  frontend:
+    build: ../frontend
+    container_name: cloudops-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  backend:
+    build: .
+    container_name: cloudops-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://expense_user:local_dev_password@postgres:5432/cloudops_expenses
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    container_name: cloudops-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cloudops_expenses
+      POSTGRES_USER: expense_user
+      POSTGRES_PASSWORD: local_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
